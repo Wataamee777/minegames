@@ -3,15 +3,21 @@
     <title>Mining Game</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+        }
         #gameArea {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
             gap: 2px;
+            margin-bottom: 20px;
         }
         .tile {
             width: 50px;
             height: 50px;
-            background-color: brown;
+            background-image: url('dirt.png'); /* 土ブロックの画像 */
+            background-size: cover;
             text-align: center;
             line-height: 50px;
             font-size: 12px;
@@ -27,21 +33,61 @@
                 line-height: 40px;
             }
         }
+        #shop {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .button {
+            padding: 10px;
+            background-color: green;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
     </style>
     <script>
         class Player {
             constructor() {
                 this.money = 0;
                 this.pickaxePower = 1;
+                this.dynamite = 0;
             }mine(tile) {
             if (tile.dataset.hardness <= this.pickaxePower) {
                 this.money += parseInt(tile.dataset.value);
                 tile.style.backgroundColor = "gray";
                 tile.innerText = "";
                 tile.dataset.hardness = 0;
+                this.updateUI();
             } else {
                 alert("Pickaxe is too weak!");
             }
+        }
+
+        buyUpgrade() {
+            if (this.money >= 20) {
+                this.pickaxePower++;
+                this.money -= 20;
+                this.updateUI();
+            } else {
+                alert("Not enough money!");
+            }
+        }
+
+        buyDynamite() {
+            if (this.money >= 10) {
+                this.dynamite++;
+                this.money -= 10;
+                this.updateUI();
+            } else {
+                alert("Not enough money!");
+            }
+        }
+
+        updateUI() {
+            document.getElementById("money").innerText = `Money: ${this.money}`;
+            document.getElementById("dynamite").innerText = `Dynamite: ${this.dynamite}`;
         }
     }
 
@@ -52,7 +98,6 @@
             tile.className = "tile";
             tile.dataset.hardness = Math.floor(Math.random() * 3) + 1;
             tile.dataset.value = tile.dataset.hardness * 10;
-            tile.innerText = tile.dataset.value;
             tile.onclick = function() { player.mine(tile); };
             gameArea.appendChild(tile);
         }
@@ -63,6 +108,7 @@
         for (let i = 0; i < 10; i++) {
             generateRow();
         }
+        player.updateUI();
     };
 
     window.onscroll = function() {
@@ -75,6 +121,12 @@
 </head>
 <body>
     <h1>Mining Game</h1>
+    <p id="money">Money: 0</p>
+    <p id="dynamite">Dynamite: 0</p>
     <div id="gameArea"></div>
+    <div id="shop">
+        <button class="button" onclick="player.buyUpgrade()">Upgrade Pickaxe (20 coins)</button>
+        <button class="button" onclick="player.buyDynamite()">Buy Dynamite (10 coins)</button>
+    </div>
 </body>
 </html>
